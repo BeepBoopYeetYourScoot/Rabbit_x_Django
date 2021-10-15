@@ -7,7 +7,10 @@ def main():
     connection = BlockingConnection(ConnectionParameters('localhost'))
     channel = connection.channel()
 
-    channel.queue_declare('task_queue', durable=True)
+    channel.exchange_declare(exchange='logs', exchange_type='direct')
+    message_queue = channel.queue_declare('logs.message_queue', durable=True)
+    message_queue_name = message_queue.method.queue
+    channel.queue_bind(queue=message_queue_name, exchange='logs')
 
     # Получение сообщений работает с помощью привязки callback-функции к очереди
     # При получении сообщения pika вызовет данную функцию
@@ -25,8 +28,7 @@ def main():
     # По идее, для того, чтобы ловить сообщения из данной очереди, мы должны точно знать,
     # что данная очередь существует на нашей стороне.
     # Нам это известно, потому что мы объявили очередь выше
-    channel.basic_consume(queue='hello',
-                          on_message_callback=callback)
+    channel.basic_consume(queue=message_queue_name, on_message_callback=callback)
 
     print('[*] Waiting for messages. To exit: Press CTRL+C')
     channel.start_consuming()
