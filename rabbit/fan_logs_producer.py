@@ -6,6 +6,7 @@ connection = BlockingConnection(ConnectionParameters('localhost'))
 channel = connection.channel()
 
 channel.exchange_declare('fan_logger', 'fanout')
+
 # Пушим сообщения через временную очередь, которая отмирает после закрытия соединения с потребителем
 result = channel.queue_declare('', exclusive=True)
 channel.queue_bind(result.method.queue, 'fan_logger')
