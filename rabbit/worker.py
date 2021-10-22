@@ -9,21 +9,20 @@ def main():
     connection = BlockingConnection(ConnectionParameters('localhost'))
     channel = connection.channel()
 
-    channel.exchange_declare(exchange='direct_logs', exchange_type='direct')
+    channel.exchange_declare(exchange='topic_logs', exchange_type='topic')
     message_queue = channel.queue_declare('', exclusive=True)
     message_queue_name = message_queue.method.queue
 
-    for severity in severities:
-        channel.queue_bind(queue=message_queue_name, exchange='direct_logs', routing_key=severity)
+    binding_keys = ['*.error', '*.critical', 'log.#']
+
+    for binding_key in binding_keys:
+        channel.queue_bind(message_queue_name, 'topic_logs', routing_key=binding_key)
 
     # Получение сообщений работает с помощью привязки callback-функции к очереди
     # При получении сообщения pika вызовет данную функцию
 
     def callback(ch, method, properties, body):
-        print(f'[x] Received {body.decode()} on binding {method.routing_key}')
-        time.sleep(body.count(b'.'))
-        print('[V] Done!')
-        # Подтверждаем получение и обработку сообщения
+        print(' [x] %r:%r' % (method.routing_key, body))
         ch.basic_ack(delivery_tag=method.delivery_tag)
 
     channel.basic_qos(prefetch_count=1)

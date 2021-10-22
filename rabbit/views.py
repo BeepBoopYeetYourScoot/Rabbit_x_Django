@@ -6,25 +6,12 @@ from rest_framework import status
 from rabbit import models, serializers
 from rabbit.producer import send_log_message
 from rabbit.filters import ProductFilterSet
+
 from django_filters.rest_framework import DjangoFilterBackend
 
 
-class BulkCreateModelViewSet(ModelViewSet):
-
-    def create(self, request, *args, **kwargs):
-        """
-        Позволяет создавать объекты списками
-        """
-        is_many = isinstance(request.data, list)
-
-        serializer = self.get_serializer(data=request.data, many=is_many)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-
-
-class ProductViewSet(BulkCreateModelViewSet):
+class ProductViewSet(ModelViewSet):
+    # model = models.Product
     queryset = models.Product.objects.all()
     serializer_class = serializers.ProductSerializer
     filter_backends = [DjangoFilterBackend]

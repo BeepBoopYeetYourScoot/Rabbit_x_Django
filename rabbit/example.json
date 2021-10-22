@@ -1,0 +1,17 @@
+[
+  {
+    "code": "1121B38UG",
+    "title": "Attribute 1",
+    "type": "int"
+  },
+    {
+    "code": "445VC34V6",
+    "title": "Attribute 2",
+    "type": "string"
+  },
+  {
+    "code": "323V6B4CC",
+    "title": "Attribute 3",
+    "type": "int"
+  }
+]
