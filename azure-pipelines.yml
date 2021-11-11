@@ -10,14 +10,6 @@ pool:
   vmImage: ubuntu-latest
 strategy:
   matrix:
-    Python35:
-      PYTHON_VERSION: '3.5'
-    Python36:
-      PYTHON_VERSION: '3.6'
-    Python37:
-      PYTHON_VERSION: '3.7'
-    Python38:
-      PYTHON_VERSION: '3.8'
     Python39:
       PYTHON_VERSION: '3.9'
   maxParallel: 3
@@ -54,6 +46,17 @@ steps:
     pushd '$(projectRoot)'
     python manage.py test --testrunner xmlrunner.extra.djangotestrunner.XMLTestRunner --no-input
   displayName: 'Run tests'
+
+- task: PythonScript@0
+  inputs:
+    scriptSource: 'inline'
+    script: |
+      import datetime
+      
+      with open(f'file_from_{datetime.datetime.now()}', 'w+') as file:
+          text = 'Данный файл был создан через скрипт пайплайна Azure DevOps'
+          file.write(text)
+  displayName: 'Generate file on upload'
 
 - task: PublishTestResults@2
   inputs:
